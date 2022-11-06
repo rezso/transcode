@@ -455,7 +455,7 @@ static int tc_v4l2_video_setup_cropping(V4L2Source *vs,
         tc_log_warn(MOD_NAME,
                     "driver does not support cropping"
                     "(ioctl(VIDIOC_CROPCAP) returns \"%s\"), disabled",
-                    errno <= sys_nerr ? sys_errlist[errno] : "unknown");
+                    strerror(errno));
         return TC_ERROR;
     }
     if (verbose_flag > TC_INFO) {
@@ -485,7 +485,7 @@ static int tc_v4l2_video_setup_cropping(V4L2Source *vs,
         tc_log_warn(MOD_NAME,
                     "driver does not support inquiring cropping"
                     " parameters (ioctl(VIDIOC_G_CROP) returns \"%s\")",
-                    errno <= sys_nerr ? sys_errlist[errno] : "unknown");
+                    strerror(errno));
         return -1;
     }
 
@@ -513,7 +513,7 @@ static int tc_v4l2_video_setup_cropping(V4L2Source *vs,
             tc_log_warn(MOD_NAME,
                         "driver does not support inquering cropping"
                         " parameters (ioctl(VIDIOC_G_CROP) returns \"%s\")",
-                        errno <= sys_nerr ? sys_errlist[errno] : "unknown");
+                        strerror(errno));
             return -1;
         }
         if (verbose_flag > TC_INFO) {
@@ -613,7 +613,7 @@ static int tc_v4l2_video_setup_stream_parameters(V4L2Source *vs, int fps)
     if (err < 0) {
         if (verbose_flag) {
             tc_log_warn(MOD_NAME, "driver does not support setting parameters (ioctl(VIDIOC_S_PARM) returns \"%s\")",
-                        errno <= sys_nerr ? sys_errlist[errno] : "unknown");
+                        strerror(errno));
         }
     }
     return TC_OK;
@@ -628,7 +628,7 @@ static int tc_v4l2_video_get_TV_standard(V4L2Source *vs)
     err = ioctl(vs->video_fd, VIDIOC_G_STD, &stdid);
     if (err < 0) {
         tc_log_warn(MOD_NAME, "driver does not support get std (ioctl(VIDIOC_G_STD) returns \"%s\")",
-                    errno <= sys_nerr ? sys_errlist[errno] : "unknown");
+                    strerror(errno));
         memset(&stdid, 0, sizeof(v4l2_std_id));
     }
 

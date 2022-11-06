@@ -243,7 +243,6 @@ static int mp3scan(int infd, int outfd)
 }
 
 #define MAX_BUF 4096
-char audio[MAX_BUF];
 
 /* ------------------------------------------------------------
  *
@@ -258,6 +257,7 @@ char audio[MAX_BUF];
 
 void extract_mp3(info_t *ipipe)
 {
+    char audio[MAX_BUF];
 
     int error=0;
 

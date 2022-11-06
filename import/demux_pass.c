@@ -32,8 +32,6 @@
 #include "packets.h"
 
 
-int gop, gop_pts, gop_cnt;
-
 /* if you listen carefully, then you can hear the desesperate
  * whisper of this code calling for a rewrite. Or for a redesign.
  * Or both. --  FR

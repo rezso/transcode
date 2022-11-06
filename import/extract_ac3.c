@@ -334,7 +334,6 @@ static void pes_ac3_loop (void)
 FILE *fd;
 
 #define MAX_BUF 4096
-char audio[MAX_BUF];
 
 
 /* from ac3scan.c */
@@ -471,6 +470,8 @@ static int ac3scan(int infd, int outfd)
 
 void extract_ac3(info_t *ipipe)
 {
+
+    char audio[MAX_BUF];
 
     int error=0;
 

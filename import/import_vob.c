@@ -157,7 +157,7 @@ MOD_open
                       " | tcextract -t vob -a %d -x ac3 -d %d"
                       " | tcextract -t raw -x ac3 -d %d",
                       input_buf, demux_buf,
-                      vob->verbose, vob->a_track, vob->verbose,
+                      vob->a_track, vob->verbose,
                       vob->verbose) < 0) {
         tc_log_perror(MOD_NAME, "command buffer overflow");
         return(TC_IMPORT_ERROR);

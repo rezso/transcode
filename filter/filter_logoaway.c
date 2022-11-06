@@ -70,7 +70,7 @@
 
 /* Note: because of ImageMagick bogosity, this must be included first, so
  * we can undefine the PACKAGE_* symbols it splats into our namespace */
-#include <magick/api.h>
+#include <MagickCore/MagickCore.h>
 #undef PACKAGE_BUGREPORT
 #undef PACKAGE_NAME
 #undef PACKAGE_STRING
@@ -103,10 +103,10 @@ typedef struct logoaway_data {
 
   int           alpha;
 
-  ExceptionInfo exception_info;
+  ExceptionInfo *exception_info;
   Image         *image;
   ImageInfo     *image_info;
-  PixelPacket   *pixel_packet;
+  Quantum       *pixel_packet;
 
   int           dump;
   char          *dump_buf;
@@ -174,7 +174,7 @@ static unsigned char alpha_blending(unsigned char srcPixel, unsigned char destPi
  *          instance    filter instance
  * @return  void        nothing
  *********************************************************/
-static void work_with_rgb_frame(logoaway_data *LD, char *buffer, int width, int height)
+static void work_with_rgb_frame(logoaway_data *LD, unsigned char *buffer, int width, int height)
 {
   int row, col, i;
   int xdistance, ydistance, distance_west, distance_north;
@@ -201,10 +201,10 @@ static void work_with_rgb_frame(logoaway_data *LD, char *buffer, int width, int 
       }
     }
 
-    LD->dumpimage = ConstituteImage(LD->width-LD->xpos, LD->height-LD->ypos, "RGB", CharPixel, LD->dump_buf, &LD->exception_info);
+    LD->dumpimage = ConstituteImage(LD->width-LD->xpos, LD->height-LD->ypos, "RGB", CharPixel, LD->dump_buf, LD->exception_info);
     tc_snprintf(LD->dumpimage->filename, MaxTextExtent, "dump[%d].png", LD->id);
 
-    WriteImage(LD->dumpimage_info, LD->dumpimage);
+    WriteImage(LD->dumpimage_info, LD->dumpimage, LD->exception_info);
   }
 
   switch(LD->mode) {
@@ -218,27 +218,28 @@ static void work_with_rgb_frame(logoaway_data *LD, char *buffer, int width, int 
       for(row=LD->ypos; row<LD->height; ++row) {
         for(col=LD->xpos; col<LD->width; ++col) {
 
+          Quantum *pixel = LD->pixel_packet + (row*LD->width+col)*GetPixelChannels(LD->image);
           buf_off = ((height-row)*width+col) * 3;
           pkt_off = (row-LD->ypos) * (LD->width-LD->xpos) + (col-LD->xpos);
           /* R */
           if (!LD->alpha) {
               buffer[buf_off +0] = LD->rcolor;
           } else {
-              alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].red);
+              alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, pixel));
               buffer[buf_off +0] = alpha_blending(buffer[buf_off +0], LD->rcolor, alpha_px);
           }
           /* G */
           if (!LD->alpha) {
               buffer[buf_off +1] = LD->gcolor;
           } else {
-              alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].green);
+              alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelGreen(LD->image, pixel));
               buffer[buf_off +1] = alpha_blending(buffer[buf_off +1], LD->gcolor, alpha_px);
           }
           /* B */
           if (!LD->alpha) {
               buffer[buf_off +2] = LD->bcolor;
           } else {
-              alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].blue);
+              alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelBlue(LD->image, pixel));
               buffer[buf_off +2] = alpha_blending(buffer[buf_off +2], LD->bcolor, alpha_px);
           }
         }
@@ -268,6 +269,7 @@ static void work_with_rgb_frame(logoaway_data *LD, char *buffer, int width, int 
           buf_off = ((height-row)*width+col) * 3;
 
           pkt_off = (row-LD->ypos) * (LD->width-LD->xpos) + (col-LD->xpos);
+          Quantum *pixel = LD->pixel_packet + pkt_off*GetPixelChannels(LD->image);
 
           /* R */
           hcalc  = alpha_blending(buffer[buf_off_xpos +0], buffer[buf_off_width  +0], alpha_hori);
@@ -276,7 +278,7 @@ static void work_with_rgb_frame(logoaway_data *LD, char *buffer, int width, int 
           if (!LD->alpha) {
               buffer[buf_off +0] = new_px;
           } else {
-              alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].red);
+              alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, pixel));
               buffer[buf_off +0] = alpha_blending(buffer[buf_off +0], new_px, alpha_px);
           }
           /* G */
@@ -286,7 +288,7 @@ static void work_with_rgb_frame(logoaway_data *LD, char *buffer, int width, int 
           if (!LD->alpha) {
               buffer[buf_off +1] = new_px;
           } else {
-              alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].green);
+              alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelGreen(LD->image, pixel));
               buffer[buf_off +1] = alpha_blending(buffer[buf_off +1], new_px, alpha_px);
           }
           /* B */
@@ -296,7 +298,7 @@ static void work_with_rgb_frame(logoaway_data *LD, char *buffer, int width, int 
           if (!LD->alpha) {
               buffer[buf_off +2] = new_px;
           } else {
-              alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].red);
+              alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelBlue(LD->image, pixel));
               buffer[buf_off +2] = alpha_blending(buffer[buf_off +2], new_px, alpha_px);
           }
         }
@@ -327,28 +329,28 @@ static void work_with_rgb_frame(logoaway_data *LD, char *buffer, int width, int 
           buf_off_height = ((height-LD->height)*width+col) * 3;
 
           i = 0;
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off-i].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + (pkt_off-i)*GetPixelChannels(LD->image)));
           while ((alpha_px != 255) && (col-i>LD->xpos))
             i++;
           buf_off_xpos   = ((height-row)*width + col-i) * 3;
           i = 0;
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off+i].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + (pkt_off+i)*GetPixelChannels(LD->image)));
           while ((alpha_px != 255) && (col+i<LD->width))
             i++;
           buf_off_width  = ((height-row)*width + col+i) * 3;
 
           i = 0;
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off-i*(LD->width-LD->xpos)].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + (pkt_off-i*(LD->width-LD->xpos))*GetPixelChannels(LD->image)));
           while ((alpha_px != 255) && (row-i>LD->ypos))
             i++;
           buf_off_ypos   = (height*width*3)-((row-i)*width - col) * 3;
           i = 0;
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off+i*(LD->width-LD->xpos)].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + (pkt_off+i*(LD->width-LD->xpos))*GetPixelChannels(LD->image)));
           while ((alpha_px != 255) && (row+i<LD->height))
             i++;
           buf_off_height = (height*width*3)-((row+i)*width - col) * 3;
 
-          alpha_px     = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].red);
+          alpha_px     = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + pkt_off*GetPixelChannels(LD->image)));
           /* R */
           hcalc  = alpha_blending(buffer[buf_off_xpos +0], buffer[buf_off_width  +0], alpha_hori);
           vcalc  = alpha_blending(buffer[buf_off_ypos +0], buffer[buf_off_height +0], alpha_vert);
@@ -405,7 +407,7 @@ static void work_with_rgb_frame(logoaway_data *LD, char *buffer, int width, int 
  *          instance    filter instance
  * @return  void        nothing
  *********************************************************/
-static void work_with_yuv_frame(logoaway_data *LD, char *buffer, int width, int height)
+static void work_with_yuv_frame(logoaway_data *LD, unsigned char *buffer, int width, int height)
 {
   int row, col, i;
   int craddr, cbaddr;
@@ -431,10 +433,11 @@ static void work_with_yuv_frame(logoaway_data *LD, char *buffer, int width, int 
 
           buf_off = row*width+col;
           pkt_off = (row-LD->ypos) * (LD->width-LD->xpos) + (col-LD->xpos);
+	  Quantum *pixel = LD->pixel_packet + pkt_off*GetPixelChannels(LD->image);
           if (!LD->alpha) {
             buffer[buf_off] = LD->ycolor;
           } else {
-            alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].red);
+            alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, pixel));
             buffer[buf_off] = alpha_blending(buffer[buf_off], LD->ycolor, alpha_px);
           }
         }
@@ -446,8 +449,9 @@ static void work_with_yuv_frame(logoaway_data *LD, char *buffer, int width, int 
 
           buf_off = row*width/2+col;
           pkt_off = (row*2-LD->ypos) * (LD->width-LD->xpos) + (col*2-LD->xpos);
+	  Quantum *pixel = LD->pixel_packet + pkt_off*GetPixelChannels(LD->image);
           /* sic */
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, pixel));
           if (!LD->alpha) {
             buffer[craddr + buf_off] = LD->ucolor;
             buffer[cbaddr + buf_off] = LD->vcolor;
@@ -483,10 +487,11 @@ static void work_with_yuv_frame(logoaway_data *LD, char *buffer, int width, int 
           buf_off_height = LD->height*width+col;
 
           pkt_off = (row-LD->ypos) * (LD->width-LD->xpos) + (col-LD->xpos);
+	  Quantum *pixel = LD->pixel_packet + pkt_off*GetPixelChannels(LD->image);
 
           hcalc = alpha_blending(buffer[buf_off_xpos], buffer[buf_off_width],  alpha_hori);
           vcalc = alpha_blending(buffer[buf_off_ypos], buffer[buf_off_height], alpha_vert);
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, pixel));
           new_px = (hcalc*LD->xweight + vcalc*LD->yweight)/100;
           if (!LD->alpha) {
             buffer[buf_off] = new_px;
@@ -517,7 +522,8 @@ static void work_with_yuv_frame(logoaway_data *LD, char *buffer, int width, int 
           buf_off_height = LD->height/2*width/2+col;
 
           pkt_off = (row*2-LD->ypos) * (LD->width-LD->xpos) + (col*2-LD->xpos);
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].red); 
+	  Quantum *pixel = LD->pixel_packet + pkt_off*GetPixelChannels(LD->image);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, pixel)); 
           /* sic, reuse red alpha_px */
 
           hcalc  = alpha_blending(buffer[craddr + buf_off_xpos], buffer[craddr + buf_off_width],  alpha_hori);
@@ -560,30 +566,30 @@ static void work_with_yuv_frame(logoaway_data *LD, char *buffer, int width, int 
           pkt_off = (row-LD->ypos) * (LD->width-LD->xpos) + (col-LD->xpos);
 
           i = 0;
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off-i].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + (pkt_off-i)*GetPixelChannels(LD->image)));
           while ((alpha_px != 255) && (col-i>LD->xpos))
             i++;
           buf_off_xpos   = (row*width + col-i);
           i = 0;
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off+i].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + (pkt_off+i)*GetPixelChannels(LD->image)));
           while ((alpha_px != 255) && (col+i<LD->width))
             i++;
           buf_off_width  = (row*width + col+i);
 
           i = 0;
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off-i*(LD->width-LD->xpos)].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + (pkt_off-i*(LD->width-LD->xpos))*GetPixelChannels(LD->image)));
           while ((alpha_px != 255) && (row-i>LD->ypos))
             i++;
           buf_off_ypos   = ((row-i)*width + col);
           i = 0;
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off+i*(LD->width-LD->xpos)].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + (pkt_off+i*(LD->width-LD->xpos))*GetPixelChannels(LD->image)));
           while ((alpha_px != 255) && (row+i<LD->height))
             i++;
           buf_off_height = ((row+i)*width + col);
 
           hcalc  = alpha_blending( buffer[buf_off_xpos], buffer[buf_off_width],  alpha_hori );
           vcalc  = alpha_blending( buffer[buf_off_ypos], buffer[buf_off_height], alpha_vert );
-          alpha_px     = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].red);
+          alpha_px     = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + pkt_off*GetPixelChannels(LD->image)));
           new_px = (hcalc*LD->xweight + vcalc*LD->yweight)/100;
           buffer[buf_off] = alpha_blending(buffer[buf_off], new_px, alpha_px);
         }
@@ -603,23 +609,23 @@ static void work_with_yuv_frame(logoaway_data *LD, char *buffer, int width, int 
           alpha_hori = xdistance * distance_west;
 
           i = 0;
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off-i].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + (pkt_off-i)*GetPixelChannels(LD->image)));
           while ((alpha_px != 255) && (col-i>LD->xpos))
             i++;
           buf_off_xpos   = (row*width/2 + col-i);
           i = 0;
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off+i].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + (pkt_off+i)*GetPixelChannels(LD->image)));
           while ((alpha_px != 255) && (col+i<LD->width))
             i++;
           buf_off_width  = (row*width/2 + col+i);
 
           i = 0;
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off-i*(LD->width-LD->xpos)].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + (pkt_off-i*(LD->width-LD->xpos))*GetPixelChannels(LD->image)));
           while ((alpha_px != 255) && (row-i>LD->ypos))
             i++;
           buf_off_ypos   = ((row-i)*width/2 + col);
           i = 0;
-          alpha_px = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off+i*(LD->width-LD->xpos)].red);
+          alpha_px = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + (pkt_off+i*(LD->width-LD->xpos))*GetPixelChannels(LD->image)));
           while ((alpha_px != 255) && (row+i<LD->height))
             i++;
           buf_off_height = ((row+i)*width/2 + col);
@@ -630,7 +636,7 @@ static void work_with_yuv_frame(logoaway_data *LD, char *buffer, int width, int 
 
           pkt_off = (row*2-LD->ypos) * (LD->width-LD->xpos) + (col*2-LD->xpos);
 
-          alpha_px    = (uint8_t)ScaleQuantumToChar(LD->pixel_packet[pkt_off].red);
+          alpha_px    = (uint8_t)ScaleQuantumToChar(GetPixelRed(LD->image, LD->pixel_packet + pkt_off*GetPixelChannels(LD->image)));
           /* sic: reuse the red component */
           hcalc  = alpha_blending(buffer[craddr + buf_off_xpos], buffer[craddr + buf_off_width],  alpha_hori);
           vcalc  = alpha_blending(buffer[craddr + buf_off_ypos], buffer[craddr + buf_off_height], alpha_vert);
@@ -815,17 +821,17 @@ int tc_filter(frame_list_t *ptr_, char *options)
     }
 
     if((data[instance]->alpha) || (data[instance]->dump)) {
-      InitializeMagick("");
-      GetExceptionInfo(&data[instance]->exception_info);
+      MagickCoreGenesis("", MagickFalse);
+      data[instance]->exception_info = AcquireExceptionInfo();
 
       if(data[instance]->alpha) {
         data[instance]->image_info = CloneImageInfo((ImageInfo *) NULL);
 
         strlcpy(data[instance]->image_info->filename, data[instance]->file, MaxTextExtent);
-        data[instance]->image = ReadImage(data[instance]->image_info, &data[instance]->exception_info);
+        data[instance]->image = ReadImage(data[instance]->image_info, data[instance]->exception_info);
         if (data[instance]->image == (Image *) NULL) {
           tc_log_error(MOD_NAME, "\n");
-          MagickWarning (data[instance]->exception_info.severity, data[instance]->exception_info.reason, data[instance]->exception_info.description);
+          MagickWarning (data[instance]->exception_info->severity, data[instance]->exception_info->reason, data[instance]->exception_info->description);
           return TC_ERROR;
         }
 
@@ -835,7 +841,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
           return TC_ERROR;
         }
 
-        data[instance]->pixel_packet = GetImagePixels(data[instance]->image, 0, 0, data[instance]->image->columns, data[instance]->image->rows);
+        data[instance]->pixel_packet = GetAuthenticPixels(data[instance]->image, 0, 0, data[instance]->image->columns, data[instance]->image->rows, data[instance]->exception_info);
       }
       if(data[instance]->dump) {
         if((data[instance]->dump_buf = tc_malloc ((data[instance]->width-data[instance]->xpos)*(data[instance]->height-data[instance]->ypos)*3)) == NULL)
@@ -865,10 +871,9 @@ int tc_filter(frame_list_t *ptr_, char *options)
     if (data[instance]->dumpimage != (Image *)NULL) {
       DestroyImage(data[instance]->dumpimage);
       DestroyImageInfo(data[instance]->dumpimage_info);
-      ConstituteComponentTerminus();
     }
-    DestroyExceptionInfo(&data[instance]->exception_info);
-    DestroyMagick();
+    DestroyExceptionInfo(data[instance]->exception_info);
+    MagickCoreTerminus();
 
     if(data[instance]->dump_buf) free(data[instance]->dump_buf);
     if(data[instance]) free(data[instance]);

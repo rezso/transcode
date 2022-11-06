@@ -36,7 +36,7 @@
 
 /* Note: because of ImageMagick bogosity, this must be included first, so
  * we can undefine the PACKAGE_* symbols it splats into our namespace */
-#include <magick/api.h>
+#include <MagickCore/MagickCore.h>
 #undef PACKAGE_BUGREPORT
 #undef PACKAGE_NAME
 #undef PACKAGE_STRING
@@ -227,7 +227,8 @@ static int flogo_convert_image(TCVHandle    tcvhandle,
                                ImageFormat  ifmt,
                                int          do_rgbswap)
 {
-    PixelPacket *pixel_packet;
+    ExceptionInfo *exception_info;
+    Quantum *pixel_packet;
     uint8_t *dst_ptr = dst;
 
     int row, col;
@@ -246,16 +247,17 @@ static int flogo_convert_image(TCVHandle    tcvhandle,
     }
     g_off = 1;
 
-    pixel_packet = GetImagePixels(src, 0, 0, width, height);
+    exception_info = AcquireExceptionInfo();
+    pixel_packet = GetAuthenticPixels(src, 0, 0, width, height, exception_info);
 
     for (row = 0; row < height; row++) {
         for (col = 0; col < width; col++) {
-            *(dst_ptr + r_off) = (uint8_t)ScaleQuantumToChar(pixel_packet->red);
-            *(dst_ptr + g_off) = (uint8_t)ScaleQuantumToChar(pixel_packet->green);
-            *(dst_ptr + b_off) = (uint8_t)ScaleQuantumToChar(pixel_packet->blue);
+            *(dst_ptr + r_off) = (uint8_t)ScaleQuantumToChar(GetPixelRed(src, pixel_packet));
+            *(dst_ptr + g_off) = (uint8_t)ScaleQuantumToChar(GetPixelGreen(src, pixel_packet));
+            *(dst_ptr + b_off) = (uint8_t)ScaleQuantumToChar(GetPixelBlue(src, pixel_packet));
 
             dst_ptr += 3;
-            pixel_packet++;
+            pixel_packet += GetPixelChannels(src);
         }
     }
 
@@ -310,7 +312,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
         Image         *timg;
         Image         *nimg;
         ImageInfo     *image_info;
-        ExceptionInfo  exception_info;
+        ExceptionInfo *exception_info;
 
         int rgb_off = 0;
 
@@ -376,19 +378,19 @@ int tc_filter(frame_list_t *ptr_, char *options)
          * semaphore.
          */
         magick_usecount++;
-        if (!IsMagickInstantiated()) {
-            InitializeMagick("");
+        if (!IsMagickCoreInstantiated()) {
+            MagickCoreGenesis("", MagickFalse);
         }
 
-        GetExceptionInfo(&exception_info);
+        exception_info = AcquireExceptionInfo();
         image_info = CloneImageInfo((ImageInfo *) NULL);
         strlcpy(image_info->filename, mfd->file, MaxTextExtent);
 
-        mfd->image = ReadImage(image_info, &exception_info);
+        mfd->image = ReadImage(image_info, exception_info);
         if (mfd->image == (Image *) NULL) {
-            MagickWarning(exception_info.severity,
-                          exception_info.reason,
-                          exception_info.description);
+            MagickWarning(exception_info->severity,
+                          exception_info->reason,
+                          exception_info->description);
             strlcpy(mfd->file, "/dev/null", PATH_MAX);
             return 0;
         }
@@ -413,11 +415,11 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
         while (mfd->images != (Image *)NULL) {
             if (mfd->flip || flip) {
-                timg = FlipImage(mfd->images, &exception_info);
+                timg = FlipImage(mfd->images, exception_info);
                 if (timg == (Image *) NULL) {
-                    MagickError(exception_info.severity,
-                                exception_info.reason,
-                                exception_info.description);
+                    MagickError(exception_info->severity,
+                                exception_info->reason,
+                                exception_info->description);
                     return -1;
                 }
                 AppendImageToList(&nimg, timg);
@@ -573,7 +575,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
         /* Set up image/video coefficient lookup tables */
         if (img_coeff_lookup[0] < 0) {
             int i;
-            float maxrgbval = (float)MaxRGB; // from ImageMagick
+            float maxrgbval = (float)QuantumRange; // from ImageMagick
 
             for (i = 0; i <= MAX_UINT8_VAL; i++) {
                 float x = (float)ScaleCharToQuantum(i);
@@ -615,8 +617,8 @@ int tc_filter(frame_list_t *ptr_, char *options)
         }
 
         magick_usecount--;
-        if (magick_usecount == 0 && IsMagickInstantiated()) {
-            DestroyMagick();
+        if (magick_usecount == 0 && IsMagickCoreInstantiated()) {
+            MagickCoreTerminus();
         }
 
         return 0;
@@ -638,7 +640,8 @@ int tc_filter(frame_list_t *ptr_, char *options)
         && (ptr->tag & TC_VIDEO)
         && !(ptr->attributes & TC_FRAME_IS_SKIPPED)
     ) {
-        PixelPacket *pixel_packet;
+        ExceptionInfo *exception_info;
+        Quantum *pixel_packet;
         uint8_t     *video_buf;
 
         int   do_fade    = 0;
@@ -647,6 +650,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 
         /* Note: ImageMagick defines opacity = 0 as fully visible, and
          * opacity = MaxRGB as fully transparent.
+         * alpha rather than opacity (0 transparent; QuantumRange opaque).
          */
         Quantum opacity;
 
@@ -682,9 +686,11 @@ int tc_filter(frame_list_t *ptr_, char *options)
             mfd->cur_delay = mfd->images->delay * vob->fps/100;
         }
 
-        pixel_packet = GetImagePixels(mfd->images, 0, 0,
+        exception_info = AcquireExceptionInfo();
+        pixel_packet = GetAuthenticPixels(mfd->images, 0, 0,
                                       mfd->images->columns,
-                                      mfd->images->rows);
+                                      mfd->images->rows,
+                                      exception_info);
 
         if (vob->im_v_codec == CODEC_RGB) {
             unsigned long r_off, g_off, b_off;
@@ -702,30 +708,30 @@ int tc_filter(frame_list_t *ptr_, char *options)
                 video_buf = ptr->video_buf + 3 * ((row + mfd->posy) * vob->ex_v_width + mfd->posx);
 
                 for (col = 0; col < mfd->image->columns; col++) {
-                    opacity = pixel_packet->opacity;
+                    opacity = QuantumRange - GetPixelAlpha(mfd->images, pixel_packet);
 
                     if (do_fade)
-                        opacity += (Quantum)((MaxRGB - opacity) * fade_coeff);
+                        opacity += (Quantum)((QuantumRange - opacity) * fade_coeff);
 
                     if (opacity == 0) {
-                        *(video_buf + r_off) = ScaleQuantumToChar(pixel_packet->red);
-                        *(video_buf + g_off) = ScaleQuantumToChar(pixel_packet->green);
-                        *(video_buf + b_off) = ScaleQuantumToChar(pixel_packet->blue);
-                    } else if (opacity < MaxRGB) {
+                        *(video_buf + r_off) = ScaleQuantumToChar(GetPixelRed(mfd->images, pixel_packet));
+                        *(video_buf + g_off) = ScaleQuantumToChar(GetPixelGreen(mfd->images, pixel_packet));
+                        *(video_buf + b_off) = ScaleQuantumToChar(GetPixelBlue(mfd->images, pixel_packet));
+                    } else if (opacity < QuantumRange) {
                         unsigned char opacity_uchar = ScaleQuantumToChar(opacity);
                         img_coeff = img_coeff_lookup[opacity_uchar];
                         vid_coeff = vid_coeff_lookup[opacity_uchar];
 
                         *(video_buf + r_off) = (uint8_t)((*(video_buf + r_off)) * vid_coeff)
-                                                + (uint8_t)(ScaleQuantumToChar(pixel_packet->red)   * img_coeff);
+                                                + (uint8_t)(ScaleQuantumToChar(GetPixelRed(mfd->images, pixel_packet))   * img_coeff);
                         *(video_buf + g_off) = (uint8_t)((*(video_buf + g_off)) * vid_coeff)
-                                                + (uint8_t)(ScaleQuantumToChar(pixel_packet->green) * img_coeff);
+                                                + (uint8_t)(ScaleQuantumToChar(GetPixelGreen(mfd->images, pixel_packet)) * img_coeff);
                         *(video_buf + b_off) = (uint8_t)((*(video_buf + b_off)) * vid_coeff)
-                                                + (uint8_t)(ScaleQuantumToChar(pixel_packet->blue)  * img_coeff);
+                                                + (uint8_t)(ScaleQuantumToChar(GetPixelBlue(mfd->images, pixel_packet))  * img_coeff);
                     }
 
                     video_buf += 3;
-                    pixel_packet++;
+                    pixel_packet += GetPixelChannels(mfd->images);
                 }
             }
         } else { /* !RGB */
@@ -745,10 +751,10 @@ int tc_filter(frame_list_t *ptr_, char *options)
                 vid_pixel_V = vid_pixel_U + vid_size/4;
                 for (col = 0; col < mfd->images->columns; col++) {
                     int do_UV_pixels = (mfd->grayout == 0 && !(row % 2) && !(col % 2)) ? 1 : 0;
-                    opacity = pixel_packet->opacity;
+                    opacity = QuantumRange - GetPixelAlpha(mfd->images, pixel_packet);
 
                     if (do_fade)
-                        opacity += (Quantum)((MaxRGB - opacity) * fade_coeff);
+                        opacity += (Quantum)((QuantumRange - opacity) * fade_coeff);
 
                     if (opacity == 0) {
                         *vid_pixel_Y = *img_pixel_Y;
@@ -756,7 +762,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
                                 *vid_pixel_U = *img_pixel_U;
                                 *vid_pixel_V = *img_pixel_V;
                         }
-                    } else if (opacity < MaxRGB) {
+                    } else if (opacity < QuantumRange) {
                         unsigned char opacity_uchar = ScaleQuantumToChar(opacity);
                         img_coeff = img_coeff_lookup[opacity_uchar];
                         vid_coeff = vid_coeff_lookup[opacity_uchar];

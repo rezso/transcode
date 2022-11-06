@@ -24,7 +24,7 @@
 
 /* Note: because of ImageMagick bogosity, this must be included first, so
  * we can undefine the PACKAGE_* symbols it splats into our namespace */
-#include <magick/api.h>
+#include <MagickCore/MagickCore.h>
 #undef PACKAGE_BUGREPORT
 #undef PACKAGE_NAME
 #undef PACKAGE_STRING
@@ -111,9 +111,9 @@ int tc_filter(frame_list_t *ptr_, char *options)
 	Image *pattern, *resized, *orig = 0;
 	ImageInfo *image_info;
 
-	PixelPacket *pixel_packet;
+	Quantum *pixel_quantum;
 	pixelsMask *pixel_last;
-	ExceptionInfo exception_info;
+	ExceptionInfo *exception_info;
 
 	if(ptr->tag & TC_FILTER_GET_CONFIG) {
 		char buf[128];
@@ -139,7 +139,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 	if(ptr->tag & TC_FILTER_INIT)
 	{
 
-		unsigned int t,r,index;
+		unsigned int t,r;
 		pixelsMask *temp;
 
 		compare[instance] = tc_malloc(sizeof(compareData));
@@ -190,22 +190,22 @@ int tc_filter(frame_list_t *ptr_, char *options)
 				tc_log_perror(MOD_NAME, "could not open file for writing");
 			}
 
-			InitializeMagick("");
+			MagickCoreGenesis("", MagickFalse);
 			if (verbose > 1)
                 tc_log_info(MOD_NAME, "Magick Initialized successfully");
 
-			GetExceptionInfo(&exception_info);
+			exception_info = AcquireExceptionInfo();
 			image_info = CloneImageInfo ((ImageInfo *) NULL);
 			strlcpy(image_info->filename, pattern_name, MaxTextExtent);
 			if (verbose > 1)
 			     tc_log_info(MOD_NAME, "Trying to open image");
 			orig = ReadImage(image_info,
-					 &exception_info);
+					 exception_info);
 
 			if (orig == (Image *) NULL) {
-				MagickWarning(exception_info.severity,
-					      exception_info.reason,
-					      exception_info.description);
+				MagickWarning(exception_info->severity,
+					      exception_info->reason,
+					      exception_info->description);
 				strlcpy(pattern_name, "/dev/null", sizeof(pattern_name));
 			}else{
 			       if (verbose > 1)
@@ -228,42 +228,41 @@ int tc_filter(frame_list_t *ptr_, char *options)
 		if (orig != NULL){
                         // Flip and resize
 			if (compare[instance]->vob->im_v_codec == CODEC_YUV)
-				TransformRGBImage(orig,YCbCrColorspace);
+				TransformImageColorspace(orig, YCbCrColorspace, exception_info);
 			if (verbose > 1) tc_log_info(MOD_NAME, "Resizing the Image");
 			resized = ResizeImage(orig,
 					      compare[instance]->width,
 					      compare[instance]->height,
 					      GaussianFilter,
-					      1,
-					      &exception_info);
+					      exception_info);
 			if (verbose > 1)
 				tc_log_info(MOD_NAME, "Flipping the Image");
-			pattern = FlipImage(resized, &exception_info);
+			pattern = FlipImage(resized, exception_info);
 			if (pattern == (Image *) NULL) {
-				MagickError (exception_info.severity,
-					     exception_info.reason,
-					     exception_info.description);
+				MagickError (exception_info->severity,
+					     exception_info->reason,
+					     exception_info->description);
 			}
 
 			// Filling the matrix with the pixels values not
 			// alpha
 
 			if (verbose > 1) tc_log_info(MOD_NAME, "GetImagePixels");
-			pixel_packet = GetImagePixels(pattern,0,0,
+			pixel_quantum = GetAuthenticPixels(pattern,0,0,
 						      pattern->columns,
-						      pattern->rows);
+						      pattern->rows,
+						      exception_info);
 
 			if (verbose > 1) tc_log_info(MOD_NAME, "Filling the Image matrix");
 			for (t = 0; t < pattern->rows; t++)
 				for (r = 0; r < pattern->columns; r++){
-					index = t*pattern->columns + r;
-					if (pixel_packet[index].opacity == 0){
+					if (GetPixelAlpha(pattern, pixel_quantum) == QuantumRange) {
 						temp=tc_malloc(sizeof(struct pixelsMask));
 						temp->row=t;
 						temp->col=r;
-						temp->r = (uint8_t)ScaleQuantumToChar(pixel_packet[index].red);
-						temp->g = (uint8_t)ScaleQuantumToChar(pixel_packet[index].green);
-						temp->b = (uint8_t)ScaleQuantumToChar(pixel_packet[index].blue);
+						temp->r = (uint8_t)ScaleQuantumToChar(GetPixelRed(pattern, pixel_quantum));
+						temp->g = (uint8_t)ScaleQuantumToChar(GetPixelGreen(pattern, pixel_quantum));
+						temp->b = (uint8_t)ScaleQuantumToChar(GetPixelBlue(pattern, pixel_quantum));
 						temp->next=NULL;
 
 						if (pixel_last == NULL){
@@ -274,6 +273,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 							pixel_last = temp;
 						}
 					}
+					pixel_quantum += GetPixelChannels(pattern);
 				}
 
 			if (verbose)
@@ -297,7 +297,7 @@ int tc_filter(frame_list_t *ptr_, char *options)
 			fclose(compare[instance]->results);
 			free(compare[instance]);
 		}
-		DestroyMagick();
+		MagickCoreTerminus();
 		compare[instance]=NULL;
 
 		return(0);

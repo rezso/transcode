@@ -23,7 +23,7 @@
 
 /* Note: because of ImageMagick bogosity, this must be included first, so
  * we can undefine the PACKAGE_* symbols it splats into our namespace */
-#include <magick/api.h>
+#include <MagickCore/MagickCore.h>
 #undef PACKAGE_BUGREPORT
 #undef PACKAGE_NAME
 #undef PACKAGE_STRING
@@ -82,7 +82,7 @@ MOD_init
 
       codec = (vob->im_v_codec == CODEC_YUV) ? CODEC_YUV : CODEC_RGB;
 
-      InitializeMagick("");
+      MagickCoreGenesis("", MagickFalse);
 
       image_info=CloneImageInfo((ImageInfo *) NULL);
 
@@ -169,8 +169,8 @@ MOD_open
 MOD_encode
 {
 
-  ExceptionInfo exception_info;
-  char *out_buffer = param->buffer;
+  ExceptionInfo *exception_info;
+  unsigned char *out_buffer = param->buffer;
   Image *image=NULL;
   int res;
 
@@ -179,7 +179,7 @@ MOD_encode
 
   if(param->flag == TC_VIDEO) {
 
-    GetExceptionInfo(&exception_info);
+    exception_info = AcquireExceptionInfo();
 
     res = tc_snprintf(buf2, PATH_MAX, "%s%06d.%s", prefix, counter++, type);
     if (res < 0) {
@@ -193,11 +193,11 @@ MOD_encode
       out_buffer = tmp_buffer;
     }
 
-    image=ConstituteImage (width, height, "RGB", CharPixel, out_buffer, &exception_info);
+    image=ConstituteImage (width, height, "RGB", CharPixel, out_buffer, exception_info);
 
     strlcpy(image->filename, buf2, MaxTextExtent);
 
-    WriteImage(image_info, image);
+    WriteImage(image_info, image, exception_info);
     DestroyImage(image);
 
     return(0);
@@ -220,8 +220,7 @@ MOD_stop
 
   if(param->flag == TC_VIDEO) {
     DestroyImageInfo(image_info);
-    ConstituteComponentTerminus();
-    DestroyMagick();
+    MagickCoreTerminus();
 
     free(tmp_buffer);
     tmp_buffer = NULL;

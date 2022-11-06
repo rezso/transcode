@@ -1106,8 +1106,8 @@ dnl
 dnl ImageMagick
 dnl
 IMAGEMAGICK_EXTRA_LIBS="$IMAGEMAGICK_EXTRA_LIBS $($PKG_CONFIG --libs ImageMagick)"
-TC_PKG_CHECK(imagemagick, no, IMAGEMAGICK, no, [magick/api.h],
- none, InitializeMagick, Wand, [http://www.imagemagick.org/])
+TC_PKG_CHECK(imagemagick, no, IMAGEMAGICK, no, [MagickWand/MagickWand.h],
+ none, InitializeMagick, MagickWand, [http://www.imagemagick.org/])
 TC_PKG_HAVE(imagemagick, IMAGEMAGICK)
 if test x"$have_imagemagick" = x"yes" ; then
   SAVE_CPPFLAGS="$CPPFLAGS"
@@ -1115,6 +1115,7 @@ if test x"$have_imagemagick" = x"yes" ; then
   AC_CHECK_HEADER([wand/magick-wand.h],
     [AC_DEFINE([HAVE_BROKEN_WAND], [1], ["have old wand header"])])
   CPPFLAGS="$SAVE_CPPFLAGS"
+  IMAGEMAGICK_CFLAGS="$IMAGEMAGICK_CFLAGS $($PKG_CONFIG --cflags ImageMagick)"
 fi
 
 dnl

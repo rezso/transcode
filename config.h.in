@@ -1,4 +1,4 @@
-/* config.h.in.  Generated from configure.in by autoheader.  */
+/* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Disable x86-32 optimizations in aclib that require text relocations */
 #undef ACLIB_DISABLE_X86_TEXTRELS
@@ -123,6 +123,9 @@
 /* have imagemagick support */
 #undef HAVE_IMAGEMAGICK
 
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
 /* have lame support */
 #undef HAVE_LAME
 
@@ -241,8 +244,11 @@
 /* Define to 1 if you have the <stdio.h> include file. */
 #undef HAVE_STDIO_H
 
-/* Define to 1 if you have the <stdlib.h> header file. */
+/* Define to 1 if you have the <stdlib.h> include file. */
 #undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
 
 /* Define to 1 if you have the <string.h> include file. */
 #undef HAVE_STRING_H
@@ -292,6 +298,9 @@
 /* Define to 1 if you have the <time.h> include file. */
 #undef HAVE_TIME_H
 
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
 /* Have video4linux(2) */
 #undef HAVE_V4L
 
@@ -322,12 +331,8 @@
 /* Have libquicktime 1.0.0 or newer */
 #undef LIBQUICKTIME_000904
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
-
-/* Define to 1 if your C compiler doesn't accept -c and -o together. */
-#undef NO_MINUS_C_MINUS_O
 
 /* Define if your system is modern BSD */
 #undef OS_BSD

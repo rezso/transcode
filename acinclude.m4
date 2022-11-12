@@ -165,7 +165,7 @@ AC_DEFUN([TC_CHECK_V4L],
 [
 AC_MSG_CHECKING([whether v4l support is requested])
 AC_ARG_ENABLE(v4l,
-  AC_HELP_STRING([--enable-v4l],
+  AS_HELP_STRING([--enable-v4l],
     [enable v4l/v4l2 support (no)]),
   [case "${enableval}" in
     yes) ;;
@@ -221,7 +221,7 @@ AC_DEFUN([TC_CHECK_BKTR],
 [
 AC_MSG_CHECKING([whether bktr support is requested])
 AC_ARG_ENABLE(bktr,
-  AC_HELP_STRING([--enable-bktr],
+  AS_HELP_STRING([--enable-bktr],
     [enable bktr support (no)]),
   [case "${enableval}" in
     yes) ;;
@@ -259,7 +259,7 @@ AC_DEFUN([TC_CHECK_SUNAU],
 [
 AC_MSG_CHECKING([whether sunau support is requested])
 AC_ARG_ENABLE(sunau,
-  AC_HELP_STRING([--enable-sunau],
+  AS_HELP_STRING([--enable-sunau],
     [enable sunau support (no)]),
   [case "${enableval}" in
     yes) ;;
@@ -291,7 +291,7 @@ AC_DEFUN([TC_CHECK_OSS],
 [
 AC_MSG_CHECKING([whether OSS support is requested])
 AC_ARG_ENABLE(oss,
-  AC_HELP_STRING([--enable-oss],
+  AS_HELP_STRING([--enable-oss],
     [enable OSS audio support (no)]),
   [case "${enableval}" in
     yes) ;;
@@ -326,7 +326,7 @@ AC_DEFUN([TC_CHECK_ALSA],
 [
 AC_MSG_CHECKING([whether ALSA support is requested])
 AC_ARG_ENABLE(alsa,
-  AC_HELP_STRING([--enable-alsa],
+  AS_HELP_STRING([--enable-alsa],
     [enable ALSA audio support (no)]),
   [case "${enableval}" in
     yes) ;;
@@ -358,7 +358,7 @@ AC_DEFUN([TC_PATH_IBP],
 [
 AC_MSG_CHECKING([whether ibp and lors support is requested])
 AC_ARG_ENABLE(ibp,
-  AC_HELP_STRING([--enable-ibp],
+  AS_HELP_STRING([--enable-ibp],
     [enable ibp support (no)]),
   [case "${enableval}" in
     yes) ;;
@@ -374,7 +374,7 @@ if test x"$enable_ibp" = x"yes" ; then
   if test x"$have_libxml2" = x"yes" ; then
     OLD_LIBS="$LIBS"
     AC_ARG_WITH(libfdr,
-      AC_HELP_STRING([--with-libfdr=DIR],
+      AS_HELP_STRING([--with-libfdr=DIR],
         [base directory for libfdr]),
       [CPPFLAGS="-I$with_libfdr/include $CPPFLAGS"
         LIBFDR=yes
@@ -384,7 +384,7 @@ if test x"$enable_ibp" = x"yes" ; then
         [AC_MSG_ERROR(unable to locate libfdr)])])
 
     AC_ARG_WITH(libibp,
-      AC_HELP_STRING([--with-libibp=DIR],
+      AS_HELP_STRING([--with-libibp=DIR],
         [base directory for libibp]),
       [CPPFLAGS="-I$with_libibp/include $CPPFLAGS"
         LIBIBP=yes
@@ -395,7 +395,7 @@ if test x"$enable_ibp" = x"yes" ; then
           [AC_MSG_ERROR(unable to locate libibp)])])
 
     AC_ARG_WITH(libexnode,
-      AC_HELP_STRING([--with-libexnode=DIR],
+      AS_HELP_STRING([--with-libexnode=DIR],
         [base directory for libexnode]),
       [CPPFLAGS="-I$with_libexnode/include/libexnode $CPPFLAGS"
         LIBEXNODE=yes
@@ -407,7 +407,7 @@ if test x"$enable_ibp" = x"yes" ; then
           [$IBP_LIBS1])])
 
     AC_ARG_WITH(liblbone,
-      AC_HELP_STRING([--with-liblbone=DIR],
+      AS_HELP_STRING([--with-liblbone=DIR],
         [base directory for liblbone]),
       [CPPFLAGS="-I$with_liblbone/include $CPPFLAGS"
         LIBLBONE=yes
@@ -418,7 +418,7 @@ if test x"$enable_ibp" = x"yes" ; then
           [AC_MSG_ERROR(unable to locate liblbone)])])
 
     AC_ARG_WITH(libend2end,
-      AC_HELP_STRING([--with-libend2end=DIR],
+      AS_HELP_STRING([--with-libend2end=DIR],
         [base directory for libend2end]),
       [CPPFLAGS="-I$with_libend2end/include $CPPFLAGS"
         LIBE2E=yes
@@ -429,7 +429,7 @@ if test x"$enable_ibp" = x"yes" ; then
           [AC_MSG_ERROR(unable to locate libend2end)])])
 
     AC_ARG_WITH(liblors,
-      AC_HELP_STRING([--with-liblors=DIR],
+      AS_HELP_STRING([--with-liblors=DIR],
         [base directory for liblors]),
       [CPPFLAGS="-I$with_liblors/include $CPPFLAGS"
         LIBLORS=yes
@@ -481,7 +481,7 @@ if test x"$2" = x"required" -o x"$2" = x"optional" ; then
 else
   AC_MSG_CHECKING([whether $1 support is requested])
   AC_ARG_ENABLE($1,
-    AC_HELP_STRING([--enable-$1],
+    AS_HELP_STRING([--enable-$1],
       [build with $1 support ($2)]),
     [case "${enableval}" in
       yes) ;;
@@ -493,17 +493,17 @@ else
 fi
 
 AC_ARG_WITH($1-prefix,
-  AC_HELP_STRING([--with-$1-prefix=PFX],
+  AS_HELP_STRING([--with-$1-prefix=PFX],
     [prefix where $1 is installed (/usr)]),
   w_$1_p="$withval", w_$1_p="")
 
 AC_ARG_WITH($1-includes,
-  AC_HELP_STRING([--with-$1-includes=DIR],
+  AS_HELP_STRING([--with-$1-includes=DIR],
     [directory where $1 headers ($5) are installed (/usr/include)]),
   w_$1_i="$withval", w_$1_i="")
 
 AC_ARG_WITH($1-libs,
-  AC_HELP_STRING([--with-$1-libs=DIR],
+  AS_HELP_STRING([--with-$1-libs=DIR],
     [directory where $1 libraries (lib$6.so) are installed (/usr/lib)]),
   w_$1_l="$withval", w_$1_l="")
 
@@ -668,7 +668,7 @@ if test x"$2" = x"required" -o x"$2" = x"optional" ; then
 else
   AC_MSG_CHECKING([whether $1 support is requested])
   AC_ARG_ENABLE($1,
-    AC_HELP_STRING([--enable-$1],
+    AS_HELP_STRING([--enable-$1],
       [build with $1 support ($2)]),
     [case "${enableval}" in
       yes) ;;

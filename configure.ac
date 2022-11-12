@@ -5,9 +5,9 @@ AC_CONFIG_AUX_DIR(autotools)
 AC_CONFIG_SRCDIR(src/transcode.c)
 
 dnl Detect the canonical host and target build environment
-AC_CANONICAL_SYSTEM
+AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(transcode,1.1.7)
+AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_HEADERS(config.h)
 
 AM_MAINTAINER_MODE
@@ -117,10 +117,8 @@ AM_CONDITIONAL(USE_DLDARWIN, test x"$USE_DLDARWIN" = x"yes")
 dnl libtool setup
 AC_PROVIDE([AC_PROG_CXX])  dnl we don't want it!
 AC_PROVIDE([AC_PROG_F77])  dnl likewise
+LT_INIT
 AC_DISABLE_STATIC
-AC_LIBTOOL_DLOPEN
-AC_PROG_LIBTOOL
-
 
 dnl Checks for header files.
 TC_CHECK_STD_HEADERS
@@ -250,7 +248,7 @@ dnl MMX support
 dnl
 explicit_mmx=no
 AC_ARG_ENABLE(mmx,
-  AC_HELP_STRING([--enable-mmx],
+  AS_HELP_STRING([--enable-mmx],
     [enable MMX code portions (yes)]),
   [case "${enableval}" in
     yes) use_mmx=yes ;;
@@ -287,7 +285,7 @@ dnl 3DNow support
 dnl
 explicit_3dnow=no
 AC_ARG_ENABLE(3dnow,
-  AC_HELP_STRING([--enable-3dnow],
+  AS_HELP_STRING([--enable-3dnow],
     [enable 3DNow code portions (yes)]),
   [case "${enableval}" in
     yes) if test x"$have_asm_mmx" = x"no"; then
@@ -328,7 +326,7 @@ dnl SSE support
 dnl
 explicit_sse=no
 AC_ARG_ENABLE(sse,
-  AC_HELP_STRING([--enable-sse],
+  AS_HELP_STRING([--enable-sse],
     [enable SSE code portions (yes)]),
   [case "${enableval}" in
     yes) if test x"$have_asm_mmx" = x"no"; then
@@ -369,7 +367,7 @@ dnl SSE2 support
 dnl
 explicit_sse2=no
 AC_ARG_ENABLE(sse2,
-  AC_HELP_STRING([--enable-sse2],
+  AS_HELP_STRING([--enable-sse2],
     [enable SSE2 code portions (yes)]),
   [case "${enableval}" in
     yes) if test x"$have_asm_sse" = x"no"; then
@@ -414,7 +412,7 @@ dnl
 dnl Altivec support
 dnl
 AC_ARG_ENABLE(altivec,
-  AC_HELP_STRING([--enable-altivec],
+  AS_HELP_STRING([--enable-altivec],
     [enable Altivec code portions (yes)]),
   [case "${enableval}" in
     yes) use_altivec=yes ;;
@@ -578,7 +576,7 @@ have_libavcodec=no
 have_libavformat=no
 AC_MSG_CHECKING([for ffmpeg support])
 AC_ARG_ENABLE(ffmpeg,
-  AC_HELP_STRING([--enable-ffmpeg],
+  AS_HELP_STRING([--enable-ffmpeg],
     [enable support for FFmpeg libraries - RECOMMENDED (yes)]),
   [case "${enableval}" in
     yes) ;;
@@ -645,7 +643,7 @@ dnl support for new/experimental features (1.1.0: NMS)
 dnl
 AC_MSG_CHECKING([enable new or experimental components])
 AC_ARG_ENABLE(experimental,
-  AC_HELP_STRING([--enable-experimental],
+  AS_HELP_STRING([--enable-experimental],
     [enable new, experimental or even incomplete transcode components (no)]),
   [case "${enableval}" in
     yes) ;;
@@ -664,7 +662,7 @@ dnl support for deprecated features (1.1.0: tcrequant)
 dnl
 AC_MSG_CHECKING([enable deprecated components])
 AC_ARG_ENABLE(deprecated,
-  AC_HELP_STRING([--enable-deprecated],
+  AS_HELP_STRING([--enable-deprecated],
     [enable deprecated or even broken transcode components (no)]),
   [case "${enableval}" in
     yes) ;;
@@ -683,7 +681,7 @@ dnl static import frame buffer
 dnl
 AC_MSG_CHECKING([for internal static framebuffer support])
 AC_ARG_ENABLE(statbuffer,
-  AC_HELP_STRING([--enable-statbuffer],
+  AS_HELP_STRING([--enable-statbuffer],
     [enable internal static framebuffer support; recommended (yes)]),
   [case "${enableval}" in
     yes) ;;
@@ -1197,7 +1195,7 @@ dnl import_pv3
 dnl
 AC_MSG_CHECKING([for PV3 support])
 AC_ARG_ENABLE(pv3,
-  AC_HELP_STRING([--enable-pv3],
+  AS_HELP_STRING([--enable-pv3],
     [enable PV3 support (no)]),
   [case "${enableval}" in
     yes) if test true != "$have_x86cpu" -o yes != "$is_linux" -o yes != "$ac_cv_func_mmap"; then
@@ -1216,7 +1214,7 @@ dnl import_nuv
 dnl
 AC_MSG_CHECKING([for NuppelVideo support])
 AC_ARG_ENABLE(nuv,
-  AC_HELP_STRING([--enable-nuv],
+  AS_HELP_STRING([--enable-nuv],
     [enable NuppelVideo support (no)]),
   [case "${enableval}" in
     yes) if test yes != "$have_lzo"; then
@@ -1275,7 +1273,7 @@ dnl
 dnl aclib
 dnl
 AC_ARG_ENABLE([x86-textrels],
-    AC_HELP_STRING([--enable-x86-textrels], [enable x86-32 optimizations which use text relocations (yes)]),
+    AS_HELP_STRING([--enable-x86-textrels], [enable x86-32 optimizations which use text relocations (yes)]),
     [if test "no" = "$enableval"; then
          AC_DEFINE([ACLIB_DISABLE_X86_TEXTRELS], [1], [Disable x86-32 optimizations in aclib that require text relocations])
      fi])
@@ -1290,7 +1288,7 @@ dnl note that autoconf uses an unprototyped main(), so we disable prototype
 dnl warnings when checking whether -Werror works
 dnl
 AC_ARG_ENABLE([warnings-as-errors],
-    AC_HELP_STRING([--enable-warnings-as-errors], [treat warnings as errors]))
+    AS_HELP_STRING([--enable-warnings-as-errors], [treat warnings as errors]))
 dnl GCC 4.2.x spits out bogus warnings when un-consting arguments in a
 dnl function call (GCC bug 29478), so don't use -Werror there
 if test x"$GCC" = x"yes" && test -n "`$CC -v 2>&1 | tail -1 | grep '4\.2\.'`"; then
@@ -1315,7 +1313,7 @@ dnl import/export module path
 dnl
 MOD_PATH="\${libdir}/transcode"
 AC_ARG_WITH(mod-path,
-  AC_HELP_STRING([--with-mod-path],
+  AS_HELP_STRING([--with-mod-path],
     [where export/import modules are installed (${libdir}/transcode)]),
   MOD_PATH=$withval)
 AC_SUBST(MOD_PATH)
@@ -1324,7 +1322,7 @@ dnl export profiles data path
 dnl
 PROF_PATH="\${datadir}/transcode/profiles"
 AC_ARG_WITH(prof-path,
-  AC_HELP_STRING([--with-prof-path],
+  AS_HELP_STRING([--with-prof-path],
     [where export profiles data are installed (${datadir}/transcode/profiles)]),
   PROF_PATH=$withval)
 AC_SUBST(PROF_PATH)

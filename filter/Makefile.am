@@ -23,9 +23,10 @@ endif
 
 if HAVE_LIBSWRESAMPLE
 FILTER_RESAMPLE = filter_resample.la
+endif
+
 if HAVE_LIBPOSTPROC
 FILTER_PP = filter_pp.la
-endif
 endif
 
 if HAVE_FREETYPE2

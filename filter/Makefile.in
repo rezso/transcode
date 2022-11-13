@@ -364,9 +364,7 @@ filter_pp_la_OBJECTS = $(am_filter_pp_la_OBJECTS)
 filter_pp_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(filter_pp_la_LDFLAGS) $(LDFLAGS) -o $@
-@HAVE_LIBPOSTPROC_TRUE@@HAVE_LIBSWRESAMPLE_TRUE@am_filter_pp_la_rpath =  \
-@HAVE_LIBPOSTPROC_TRUE@@HAVE_LIBSWRESAMPLE_TRUE@	-rpath \
-@HAVE_LIBPOSTPROC_TRUE@@HAVE_LIBSWRESAMPLE_TRUE@	$(pkgdir)
+@HAVE_LIBPOSTPROC_TRUE@am_filter_pp_la_rpath = -rpath $(pkgdir)
 filter_resample_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 am_filter_resample_la_OBJECTS = filter_resample_la-filter_resample.lo
@@ -886,7 +884,7 @@ pkgdir = $(MOD_PATH)
 @HAVE_IMAGEMAGICK_TRUE@FILTER_LOGO = filter_logo.la
 @HAVE_IMAGEMAGICK_TRUE@FILTER_LOGOAWAY = filter_logoaway.la
 @HAVE_LIBSWRESAMPLE_TRUE@FILTER_RESAMPLE = filter_resample.la
-@HAVE_LIBPOSTPROC_TRUE@@HAVE_LIBSWRESAMPLE_TRUE@FILTER_PP = filter_pp.la
+@HAVE_LIBPOSTPROC_TRUE@FILTER_PP = filter_pp.la
 @HAVE_FREETYPE2_TRUE@FILTER_TEXT = filter_text.la
 @ARCH_X86_TRUE@@HAVE_ASM_MMX_TRUE@@HAVE_ASM_SSE_TRUE@@HAVE_GCC2_FALSE@F_TOMSMOCOMP = tomsmocomp
 @HAVE_GCC2_TRUE@F_TOMSMOCOMP = 

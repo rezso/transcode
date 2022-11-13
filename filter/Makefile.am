@@ -22,6 +22,7 @@ FILTER_LOGOAWAY = filter_logoaway.la
 endif
 
 if HAVE_FFMPEG
+FILTER_RESAMPLE = filter_resample.la
 if HAVE_LIBPOSTPROC
 FILTER_PP = filter_pp.la
 endif
@@ -78,6 +79,7 @@ pkg_LTLIBRARIES = \
 	filter_normalize.la \
 	filter_null.la \
 	$(FILTER_PP) \
+	$(FILTER_RESAMPLE) \
 	filter_skip.la \
 	filter_slowmo.la \
 	filter_smartbob.la \
@@ -201,6 +203,11 @@ filter_pp_la_LDFLAGS = -module -avoid-version
 
 filter_skip_la_SOURCES = filter_skip.c
 filter_skip_la_LDFLAGS = -module -avoid-version
+
+filter_resample_la_SOURCES = filter_resample.c
+filter_resample_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBAVCODEC_CFLAGS) $(LIBSWRESAMPLE_CFLAGS) $(LIBAVUTIL_CFLAGS)
+filter_resample_la_LDFLAGS = -module -avoid-version
+filter_resample_la_LIBADD = $(LIBAVCODEC_LIBS) $(LIBSWRESAMPLE_LIBS) $(LIBAVUTIL_LIBS)
 
 filter_slowmo_la_SOURCES = filter_slowmo.c
 filter_slowmo_la_LDFLAGS = -module -avoid-version

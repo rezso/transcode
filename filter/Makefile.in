@@ -366,6 +366,15 @@ filter_pp_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(filter_pp_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_FFMPEG_TRUE@@HAVE_LIBPOSTPROC_TRUE@am_filter_pp_la_rpath =  \
 @HAVE_FFMPEG_TRUE@@HAVE_LIBPOSTPROC_TRUE@	-rpath $(pkgdir)
+filter_resample_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+am_filter_resample_la_OBJECTS = filter_resample_la-filter_resample.lo
+filter_resample_la_OBJECTS = $(am_filter_resample_la_OBJECTS)
+filter_resample_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(filter_resample_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+@HAVE_FFMPEG_TRUE@am_filter_resample_la_rpath = -rpath $(pkgdir)
 filter_skip_la_LIBADD =
 am_filter_skip_la_OBJECTS = filter_skip.lo
 filter_skip_la_OBJECTS = $(am_filter_skip_la_OBJECTS)
@@ -489,6 +498,7 @@ am__depfiles_remade = ./$(DEPDIR)/filter_29to23.Plo \
 	./$(DEPDIR)/filter_modfps.Plo ./$(DEPDIR)/filter_msharpen.Plo \
 	./$(DEPDIR)/filter_normalize.Plo ./$(DEPDIR)/filter_null.Plo \
 	./$(DEPDIR)/filter_pp_la-filter_pp.Plo \
+	./$(DEPDIR)/filter_resample_la-filter_resample.Plo \
 	./$(DEPDIR)/filter_skip.Plo ./$(DEPDIR)/filter_slowmo.Plo \
 	./$(DEPDIR)/filter_smartbob.Plo \
 	./$(DEPDIR)/filter_smartdeinter.Plo \
@@ -534,8 +544,8 @@ SOURCES = $(filter_29to23_la_SOURCES) $(filter_32detect_la_SOURCES) \
 	$(filter_mask_la_SOURCES) $(filter_modfps_la_SOURCES) \
 	$(filter_msharpen_la_SOURCES) $(filter_normalize_la_SOURCES) \
 	$(filter_null_la_SOURCES) $(filter_pp_la_SOURCES) \
-	$(filter_skip_la_SOURCES) $(filter_slowmo_la_SOURCES) \
-	$(filter_smartbob_la_SOURCES) \
+	$(filter_resample_la_SOURCES) $(filter_skip_la_SOURCES) \
+	$(filter_slowmo_la_SOURCES) $(filter_smartbob_la_SOURCES) \
 	$(filter_smartdeinter_la_SOURCES) \
 	$(filter_smartyuv_la_SOURCES) $(filter_smooth_la_SOURCES) \
 	$(filter_testframe_la_SOURCES) $(filter_text_la_SOURCES) \
@@ -558,8 +568,8 @@ DIST_SOURCES = $(filter_29to23_la_SOURCES) \
 	$(filter_mask_la_SOURCES) $(filter_modfps_la_SOURCES) \
 	$(filter_msharpen_la_SOURCES) $(filter_normalize_la_SOURCES) \
 	$(filter_null_la_SOURCES) $(filter_pp_la_SOURCES) \
-	$(filter_skip_la_SOURCES) $(filter_slowmo_la_SOURCES) \
-	$(filter_smartbob_la_SOURCES) \
+	$(filter_resample_la_SOURCES) $(filter_skip_la_SOURCES) \
+	$(filter_slowmo_la_SOURCES) $(filter_smartbob_la_SOURCES) \
 	$(filter_smartdeinter_la_SOURCES) \
 	$(filter_smartyuv_la_SOURCES) $(filter_smooth_la_SOURCES) \
 	$(filter_testframe_la_SOURCES) $(filter_text_la_SOURCES) \
@@ -698,6 +708,8 @@ LIBAVCODEC_CFLAGS = @LIBAVCODEC_CFLAGS@
 LIBAVCODEC_LIBS = @LIBAVCODEC_LIBS@
 LIBAVFORMAT_CFLAGS = @LIBAVFORMAT_CFLAGS@
 LIBAVFORMAT_LIBS = @LIBAVFORMAT_LIBS@
+LIBAVUTIL_CFLAGS = @LIBAVUTIL_CFLAGS@
+LIBAVUTIL_LIBS = @LIBAVUTIL_LIBS@
 LIBDVDREAD_CFLAGS = @LIBDVDREAD_CFLAGS@
 LIBDVDREAD_LIBS = @LIBDVDREAD_LIBS@
 LIBDV_CFLAGS = @LIBDV_CFLAGS@
@@ -714,6 +726,8 @@ LIBPOSTPROC_LIBS = @LIBPOSTPROC_LIBS@
 LIBQUICKTIME_CFLAGS = @LIBQUICKTIME_CFLAGS@
 LIBQUICKTIME_LIBS = @LIBQUICKTIME_LIBS@
 LIBS = @LIBS@
+LIBSWRESAMPLE_CFLAGS = @LIBSWRESAMPLE_CFLAGS@
+LIBSWRESAMPLE_LIBS = @LIBSWRESAMPLE_LIBS@
 LIBTCAUDIO_LIBS = @LIBTCAUDIO_LIBS@
 LIBTCVIDEO_LIBS = @LIBTCVIDEO_LIBS@
 LIBTC_LIBS = @LIBTC_LIBS@
@@ -871,6 +885,7 @@ pkgdir = $(MOD_PATH)
 @HAVE_IMAGEMAGICK_TRUE@FILTER_COMPARE = filter_compare.la
 @HAVE_IMAGEMAGICK_TRUE@FILTER_LOGO = filter_logo.la
 @HAVE_IMAGEMAGICK_TRUE@FILTER_LOGOAWAY = filter_logoaway.la
+@HAVE_FFMPEG_TRUE@FILTER_RESAMPLE = filter_resample.la
 @HAVE_FFMPEG_TRUE@@HAVE_LIBPOSTPROC_TRUE@FILTER_PP = filter_pp.la
 @HAVE_FREETYPE2_TRUE@FILTER_TEXT = filter_text.la
 @ARCH_X86_TRUE@@HAVE_ASM_MMX_TRUE@@HAVE_ASM_SSE_TRUE@@HAVE_GCC2_FALSE@F_TOMSMOCOMP = tomsmocomp
@@ -909,6 +924,7 @@ pkg_LTLIBRARIES = \
 	filter_normalize.la \
 	filter_null.la \
 	$(FILTER_PP) \
+	$(FILTER_RESAMPLE) \
 	filter_skip.la \
 	filter_slowmo.la \
 	filter_smartbob.la \
@@ -1000,6 +1016,10 @@ filter_pp_la_LIBADD = $(LIBPOSTPROC_LIBS)
 filter_pp_la_LDFLAGS = -module -avoid-version
 filter_skip_la_SOURCES = filter_skip.c
 filter_skip_la_LDFLAGS = -module -avoid-version
+filter_resample_la_SOURCES = filter_resample.c
+filter_resample_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBAVCODEC_CFLAGS) $(LIBSWRESAMPLE_CFLAGS) $(LIBAVUTIL_CFLAGS)
+filter_resample_la_LDFLAGS = -module -avoid-version
+filter_resample_la_LIBADD = $(LIBAVCODEC_LIBS) $(LIBSWRESAMPLE_LIBS) $(LIBAVUTIL_LIBS)
 filter_slowmo_la_SOURCES = filter_slowmo.c
 filter_slowmo_la_LDFLAGS = -module -avoid-version
 filter_smartbob_la_SOURCES = filter_smartbob.c
@@ -1214,6 +1234,9 @@ filter_null.la: $(filter_null_la_OBJECTS) $(filter_null_la_DEPENDENCIES) $(EXTRA
 filter_pp.la: $(filter_pp_la_OBJECTS) $(filter_pp_la_DEPENDENCIES) $(EXTRA_filter_pp_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(filter_pp_la_LINK) $(am_filter_pp_la_rpath) $(filter_pp_la_OBJECTS) $(filter_pp_la_LIBADD) $(LIBS)
 
+filter_resample.la: $(filter_resample_la_OBJECTS) $(filter_resample_la_DEPENDENCIES) $(EXTRA_filter_resample_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(filter_resample_la_LINK) $(am_filter_resample_la_rpath) $(filter_resample_la_OBJECTS) $(filter_resample_la_LIBADD) $(LIBS)
+
 filter_skip.la: $(filter_skip_la_OBJECTS) $(filter_skip_la_DEPENDENCIES) $(EXTRA_filter_skip_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(filter_skip_la_LINK) -rpath $(pkgdir) $(filter_skip_la_OBJECTS) $(filter_skip_la_LIBADD) $(LIBS)
 
@@ -1323,6 +1346,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter_normalize.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter_null.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter_pp_la-filter_pp.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter_resample_la-filter_resample.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter_skip.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter_slowmo.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter_smartbob.Plo@am__quote@ # am--include-marker
@@ -1393,6 +1417,13 @@ filter_pp_la-filter_pp.lo: filter_pp.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='filter_pp.c' object='filter_pp_la-filter_pp.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(filter_pp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o filter_pp_la-filter_pp.lo `test -f 'filter_pp.c' || echo '$(srcdir)/'`filter_pp.c
+
+filter_resample_la-filter_resample.lo: filter_resample.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(filter_resample_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT filter_resample_la-filter_resample.lo -MD -MP -MF $(DEPDIR)/filter_resample_la-filter_resample.Tpo -c -o filter_resample_la-filter_resample.lo `test -f 'filter_resample.c' || echo '$(srcdir)/'`filter_resample.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/filter_resample_la-filter_resample.Tpo $(DEPDIR)/filter_resample_la-filter_resample.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='filter_resample.c' object='filter_resample_la-filter_resample.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(filter_resample_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o filter_resample_la-filter_resample.lo `test -f 'filter_resample.c' || echo '$(srcdir)/'`filter_resample.c
 
 filter_text_la-filter_text.lo: filter_text.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(filter_text_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT filter_text_la-filter_text.lo -MD -MP -MF $(DEPDIR)/filter_text_la-filter_text.Tpo -c -o filter_text_la-filter_text.lo `test -f 'filter_text.c' || echo '$(srcdir)/'`filter_text.c
@@ -1639,6 +1670,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/filter_normalize.Plo
 	-rm -f ./$(DEPDIR)/filter_null.Plo
 	-rm -f ./$(DEPDIR)/filter_pp_la-filter_pp.Plo
+	-rm -f ./$(DEPDIR)/filter_resample_la-filter_resample.Plo
 	-rm -f ./$(DEPDIR)/filter_skip.Plo
 	-rm -f ./$(DEPDIR)/filter_slowmo.Plo
 	-rm -f ./$(DEPDIR)/filter_smartbob.Plo
@@ -1728,6 +1760,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/filter_normalize.Plo
 	-rm -f ./$(DEPDIR)/filter_null.Plo
 	-rm -f ./$(DEPDIR)/filter_pp_la-filter_pp.Plo
+	-rm -f ./$(DEPDIR)/filter_resample_la-filter_resample.Plo
 	-rm -f ./$(DEPDIR)/filter_skip.Plo
 	-rm -f ./$(DEPDIR)/filter_slowmo.Plo
 	-rm -f ./$(DEPDIR)/filter_smartbob.Plo

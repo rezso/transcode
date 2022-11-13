@@ -138,9 +138,6 @@
 /* have libavformat support */
 #undef HAVE_LIBAVFORMAT
 
-/* have libavutil support */
-#undef HAVE_LIBAVUTIL
-
 /* Define to 1 if you have the `dl' library (-ldl). */
 #undef HAVE_LIBDL
 

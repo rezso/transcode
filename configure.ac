@@ -600,11 +600,6 @@ else
   TC_PKG_CONFIG_CHECK(libavformat, "$enable_ffmpeg", LIBAVFORMAT, libavformat, [http://www.ffmpeg.org/])
 
   dnl
-  dnl libavutil
-  dnl
-  TC_PKG_CONFIG_CHECK(libavutil, "$enable_ffmpeg", LIBAVUTIL, libavutil, [http://www.ffmpeg.org/])
-
-  dnl
   dnl libswresample
   dnl
   TC_PKG_CONFIG_CHECK(libswresample, "$enable_ffmpeg", LIBSWRESAMPLE, libswresample, [http://www.ffmpeg.org/])
@@ -614,7 +609,6 @@ fi
 
 TC_PKG_HAVE(libavcodec, LIBAVCODEC)
 TC_PKG_HAVE(libavformat, LIBAVFORMAT)
-TC_PKG_HAVE(libavutil, LIBAVUTIL)
 TC_PKG_HAVE(libswresample, LIBSWRESAMPLE)
 
 AM_CONDITIONAL(HAVE_FFMPEG, test x"$enable_ffmpeg" = x"yes")

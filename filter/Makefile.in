@@ -364,17 +364,19 @@ filter_pp_la_OBJECTS = $(am_filter_pp_la_OBJECTS)
 filter_pp_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(filter_pp_la_LDFLAGS) $(LDFLAGS) -o $@
-@HAVE_FFMPEG_TRUE@@HAVE_LIBPOSTPROC_TRUE@am_filter_pp_la_rpath =  \
-@HAVE_FFMPEG_TRUE@@HAVE_LIBPOSTPROC_TRUE@	-rpath $(pkgdir)
+@HAVE_LIBPOSTPROC_TRUE@@HAVE_LIBSWRESAMPLE_TRUE@am_filter_pp_la_rpath =  \
+@HAVE_LIBPOSTPROC_TRUE@@HAVE_LIBSWRESAMPLE_TRUE@	-rpath \
+@HAVE_LIBPOSTPROC_TRUE@@HAVE_LIBSWRESAMPLE_TRUE@	$(pkgdir)
 filter_resample_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1)
 am_filter_resample_la_OBJECTS = filter_resample_la-filter_resample.lo
 filter_resample_la_OBJECTS = $(am_filter_resample_la_OBJECTS)
 filter_resample_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(AM_CFLAGS) $(CFLAGS) $(filter_resample_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
-@HAVE_FFMPEG_TRUE@am_filter_resample_la_rpath = -rpath $(pkgdir)
+@HAVE_LIBSWRESAMPLE_TRUE@am_filter_resample_la_rpath = -rpath \
+@HAVE_LIBSWRESAMPLE_TRUE@	$(pkgdir)
 filter_skip_la_LIBADD =
 am_filter_skip_la_OBJECTS = filter_skip.lo
 filter_skip_la_OBJECTS = $(am_filter_skip_la_OBJECTS)
@@ -708,8 +710,6 @@ LIBAVCODEC_CFLAGS = @LIBAVCODEC_CFLAGS@
 LIBAVCODEC_LIBS = @LIBAVCODEC_LIBS@
 LIBAVFORMAT_CFLAGS = @LIBAVFORMAT_CFLAGS@
 LIBAVFORMAT_LIBS = @LIBAVFORMAT_LIBS@
-LIBAVUTIL_CFLAGS = @LIBAVUTIL_CFLAGS@
-LIBAVUTIL_LIBS = @LIBAVUTIL_LIBS@
 LIBDVDREAD_CFLAGS = @LIBDVDREAD_CFLAGS@
 LIBDVDREAD_LIBS = @LIBDVDREAD_LIBS@
 LIBDV_CFLAGS = @LIBDV_CFLAGS@
@@ -885,8 +885,8 @@ pkgdir = $(MOD_PATH)
 @HAVE_IMAGEMAGICK_TRUE@FILTER_COMPARE = filter_compare.la
 @HAVE_IMAGEMAGICK_TRUE@FILTER_LOGO = filter_logo.la
 @HAVE_IMAGEMAGICK_TRUE@FILTER_LOGOAWAY = filter_logoaway.la
-@HAVE_FFMPEG_TRUE@FILTER_RESAMPLE = filter_resample.la
-@HAVE_FFMPEG_TRUE@@HAVE_LIBPOSTPROC_TRUE@FILTER_PP = filter_pp.la
+@HAVE_LIBSWRESAMPLE_TRUE@FILTER_RESAMPLE = filter_resample.la
+@HAVE_LIBPOSTPROC_TRUE@@HAVE_LIBSWRESAMPLE_TRUE@FILTER_PP = filter_pp.la
 @HAVE_FREETYPE2_TRUE@FILTER_TEXT = filter_text.la
 @ARCH_X86_TRUE@@HAVE_ASM_MMX_TRUE@@HAVE_ASM_SSE_TRUE@@HAVE_GCC2_FALSE@F_TOMSMOCOMP = tomsmocomp
 @HAVE_GCC2_TRUE@F_TOMSMOCOMP = 
@@ -1017,9 +1017,9 @@ filter_pp_la_LDFLAGS = -module -avoid-version
 filter_skip_la_SOURCES = filter_skip.c
 filter_skip_la_LDFLAGS = -module -avoid-version
 filter_resample_la_SOURCES = filter_resample.c
-filter_resample_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBAVCODEC_CFLAGS) $(LIBSWRESAMPLE_CFLAGS) $(LIBAVUTIL_CFLAGS)
+filter_resample_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBAVCODEC_CFLAGS) $(LIBSWRESAMPLE_CFLAGS)
 filter_resample_la_LDFLAGS = -module -avoid-version
-filter_resample_la_LIBADD = $(LIBAVCODEC_LIBS) $(LIBSWRESAMPLE_LIBS) $(LIBAVUTIL_LIBS)
+filter_resample_la_LIBADD = $(LIBAVCODEC_LIBS) $(LIBSWRESAMPLE_LIBS)
 filter_slowmo_la_SOURCES = filter_slowmo.c
 filter_slowmo_la_LDFLAGS = -module -avoid-version
 filter_smartbob_la_SOURCES = filter_smartbob.c

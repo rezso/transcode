@@ -21,7 +21,7 @@ FILTER_LOGO = filter_logo.la
 FILTER_LOGOAWAY = filter_logoaway.la
 endif
 
-if HAVE_FFMPEG
+if HAVE_LIBSWRESAMPLE
 FILTER_RESAMPLE = filter_resample.la
 if HAVE_LIBPOSTPROC
 FILTER_PP = filter_pp.la
@@ -205,9 +205,9 @@ filter_skip_la_SOURCES = filter_skip.c
 filter_skip_la_LDFLAGS = -module -avoid-version
 
 filter_resample_la_SOURCES = filter_resample.c
-filter_resample_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBAVCODEC_CFLAGS) $(LIBSWRESAMPLE_CFLAGS) $(LIBAVUTIL_CFLAGS)
+filter_resample_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBAVCODEC_CFLAGS) $(LIBSWRESAMPLE_CFLAGS)
 filter_resample_la_LDFLAGS = -module -avoid-version
-filter_resample_la_LIBADD = $(LIBAVCODEC_LIBS) $(LIBSWRESAMPLE_LIBS) $(LIBAVUTIL_LIBS)
+filter_resample_la_LIBADD = $(LIBAVCODEC_LIBS) $(LIBSWRESAMPLE_LIBS)
 
 filter_slowmo_la_SOURCES = filter_slowmo.c
 filter_slowmo_la_LDFLAGS = -module -avoid-version

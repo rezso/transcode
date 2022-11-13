@@ -814,16 +814,12 @@ HAVE_FFMPEG_FALSE
 HAVE_FFMPEG_TRUE
 HAVE_LIBSWRESAMPLE_FALSE
 HAVE_LIBSWRESAMPLE_TRUE
-HAVE_LIBAVUTIL_FALSE
-HAVE_LIBAVUTIL_TRUE
 HAVE_LIBAVFORMAT_FALSE
 HAVE_LIBAVFORMAT_TRUE
 HAVE_LIBAVCODEC_FALSE
 HAVE_LIBAVCODEC_TRUE
 LIBSWRESAMPLE_LIBS
 LIBSWRESAMPLE_CFLAGS
-LIBAVUTIL_LIBS
-LIBAVUTIL_CFLAGS
 LIBAVFORMAT_LIBS
 LIBAVFORMAT_CFLAGS
 LIBAVCODEC_LIBS
@@ -1049,7 +1045,6 @@ with_x
 enable_ffmpeg
 enable_libavcodec
 enable_libavformat
-enable_libavutil
 enable_libswresample
 enable_libv4l2
 enable_libv4lconvert
@@ -1157,8 +1152,6 @@ LIBAVCODEC_CFLAGS
 LIBAVCODEC_LIBS
 LIBAVFORMAT_CFLAGS
 LIBAVFORMAT_LIBS
-LIBAVUTIL_CFLAGS
-LIBAVUTIL_LIBS
 LIBSWRESAMPLE_CFLAGS
 LIBSWRESAMPLE_LIBS
 LIBV4L2_CFLAGS
@@ -1847,7 +1840,6 @@ Optional Features:
                           (yes)
   --enable-libavcodec     build with libavcodec support ("$enable_ffmpeg")
   --enable-libavformat    build with libavformat support ("$enable_ffmpeg")
-  --enable-libavutil      build with libavutil support ("$enable_ffmpeg")
   --enable-libswresample  build with libswresample support ("$enable_ffmpeg")
   --enable-libv4l2        build with libv4l2 support (no)
   --enable-libv4lconvert  build with libv4lconvert support (no)
@@ -2025,10 +2017,6 @@ Some influential environment variables:
               C compiler flags for LIBAVFORMAT, overriding pkg-config
   LIBAVFORMAT_LIBS
               linker flags for LIBAVFORMAT, overriding pkg-config
-  LIBAVUTIL_CFLAGS
-              C compiler flags for LIBAVUTIL, overriding pkg-config
-  LIBAVUTIL_LIBS
-              linker flags for LIBAVUTIL, overriding pkg-config
   LIBSWRESAMPLE_CFLAGS
               C compiler flags for LIBSWRESAMPLE, overriding pkg-config
   LIBSWRESAMPLE_LIBS
@@ -23465,145 +23453,6 @@ fi
 
 
 if test x""$enable_ffmpeg"" = x"required" -o x""$enable_ffmpeg"" = x"optional" ; then
-  enable_libavutil="yes"
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether libavutil support is requested" >&5
-printf %s "checking whether libavutil support is requested... " >&6; }
-  # Check whether --enable-libavutil was given.
-if test ${enable_libavutil+y}
-then :
-  enableval=$enable_libavutil; case "${enableval}" in
-      yes) ;;
-      no)  ;;
-      *) as_fn_error $? "bad value ${enableval} for --enable-libavutil" "$LINENO" 5 ;;
-    esac
-else $as_nop
-  enable_libavutil=""$enable_ffmpeg""
-fi
-
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $enable_libavutil" >&5
-printf "%s\n" "$enable_libavutil" >&6; }
-fi
-
-have_libavutil="no"
-this_pkg_err="no"
-
-if test x"$enable_libavutil" = x"yes" ; then
-
-pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libavutil" >&5
-printf %s "checking for libavutil... " >&6; }
-
-if test -n "$LIBAVUTIL_CFLAGS"; then
-    pkg_cv_LIBAVUTIL_CFLAGS="$LIBAVUTIL_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libavutil\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libavutil") 2>&5
-  ac_status=$?
-  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_LIBAVUTIL_CFLAGS=`$PKG_CONFIG --cflags "libavutil" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-if test -n "$LIBAVUTIL_LIBS"; then
-    pkg_cv_LIBAVUTIL_LIBS="$LIBAVUTIL_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libavutil\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libavutil") 2>&5
-  ac_status=$?
-  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_LIBAVUTIL_LIBS=`$PKG_CONFIG --libs "libavutil" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-
-
-
-if test $pkg_failed = yes; then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-
-if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-        _pkg_short_errors_supported=yes
-else
-        _pkg_short_errors_supported=no
-fi
-        if test $_pkg_short_errors_supported = yes; then
-	        LIBAVUTIL_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libavutil" 2>&1`
-        else
-	        LIBAVUTIL_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libavutil" 2>&1`
-        fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$LIBAVUTIL_PKG_ERRORS" >&5
-
-
-this_pkg_err="yes"
-if test x"LIBAVUTIL" != x"optional" ; then
-  tc_pkg_err="yes"
-
-  prob=""
-  if test x"LIBAVUTIL" = x"required" ; then
-    prob="requirement failed"
-  else
-    prob="option '--enable-libavutil' failed"
-  fi
-  msg="ERROR: $prob:
-libavutil can be found in the following packages:
-  libavutil  http://www.ffmpeg.org/
-
-"
-  tc_pkg_err_text="$tc_pkg_err_text$msg"
-fi
-
-elif test $pkg_failed = untried; then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-
-this_pkg_err="yes"
-if test x"LIBAVUTIL" != x"optional" ; then
-  tc_pkg_err="yes"
-
-  prob=""
-  if test x"LIBAVUTIL" = x"required" ; then
-    prob="requirement failed"
-  else
-    prob="option '--enable-libavutil' failed"
-  fi
-  msg="ERROR: $prob:
-libavutil can be found in the following packages:
-  libavutil  http://www.ffmpeg.org/
-
-"
-  tc_pkg_err_text="$tc_pkg_err_text$msg"
-fi
-
-else
-	LIBAVUTIL_CFLAGS=$pkg_cv_LIBAVUTIL_CFLAGS
-	LIBAVUTIL_LIBS=$pkg_cv_LIBAVUTIL_LIBS
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-	have_libavutil="yes"
-fi
-else
-  LIBAVUTIL_CFLAGS=""
-  LIBAVUTIL_LIBS=""
-fi
-
-
-
-if test x""$enable_ffmpeg"" = x"required" -o x""$enable_ffmpeg"" = x"optional" ; then
   enable_libswresample="yes"
 else
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether libswresample support is requested" >&5
@@ -23785,27 +23634,6 @@ fi
 
 
 msg=`printf "%-30s %s" "libavformat" "$have_libavformat"`
-tc_pkg_rpt_text="$tc_pkg_rpt_text$msg
-"
-
-
-if test x"$have_libavutil" = x"yes" ; then
-
-printf "%s\n" "#define HAVE_LIBAVUTIL 1" >>confdefs.h
-
-fi
- if test x"$have_libavutil" = x"yes"; then
-  HAVE_LIBAVUTIL_TRUE=
-  HAVE_LIBAVUTIL_FALSE='#'
-else
-  HAVE_LIBAVUTIL_TRUE='#'
-  HAVE_LIBAVUTIL_FALSE=
-fi
-
-
-
-
-msg=`printf "%-30s %s" "libavutil" "$have_libavutil"`
 tc_pkg_rpt_text="$tc_pkg_rpt_text$msg
 "
 
@@ -32418,10 +32246,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_LIBAVFORMAT_TRUE}" && test -z "${HAVE_LIBAVFORMAT_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_LIBAVFORMAT\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${HAVE_LIBAVUTIL_TRUE}" && test -z "${HAVE_LIBAVUTIL_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_LIBAVUTIL\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_LIBSWRESAMPLE_TRUE}" && test -z "${HAVE_LIBSWRESAMPLE_FALSE}"; then

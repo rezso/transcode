@@ -120,7 +120,7 @@ void probe_ffmpeg(info_t *ipipe)
 
     translate_info(lavf_dmx_context, ipipe->probe_info);
 
-    av_close_input_file(lavf_dmx_context);
+    avformat_close_input(lavf_dmx_context);
     return;
 }
 

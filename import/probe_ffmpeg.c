@@ -120,11 +120,7 @@ void probe_ffmpeg(info_t *ipipe)
 
     translate_info(lavf_dmx_context, ipipe->probe_info);
 
-#if LIBAVFORMAT_VERSION_INT > AV_VERSION_INT(53,25,0)
-    avformat_close_input(&lavf_dmx_context);
-#else
     av_close_input_file(lavf_dmx_context);
-#endif
     return;
 }
 

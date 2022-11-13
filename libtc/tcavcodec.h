@@ -53,7 +53,6 @@ extern pthread_mutex_t tc_libavcodec_mutex;
 
 #define TC_INIT_LIBAVCODEC do { \
     TC_LOCK_LIBAVCODEC; \
-    avcodec_init(); \
     avcodec_register_all(); \
     TC_UNLOCK_LIBAVCODEC; \
 } while (0)

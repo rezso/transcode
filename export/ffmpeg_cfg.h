@@ -13,8 +13,6 @@ extern int lavc_param_vme;
 //extern int lavc_param_vqscale;
 //extern int lavc_param_vqmin;
 //extern int lavc_param_vqmax;
-extern int lavc_param_mb_qmin;
-extern int lavc_param_mb_qmax;
 extern int lavc_param_lmin;
 extern int lavc_param_lmax;
 extern int lavc_param_vqdiff;

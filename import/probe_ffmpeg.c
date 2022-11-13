@@ -99,8 +99,8 @@ void probe_ffmpeg(info_t *ipipe)
 
     TC_INIT_LIBAVCODEC;
 
-    ret = av_open_input_file(&lavf_dmx_context, ipipe->name,
-                             NULL, 0, NULL);
+    ret = avformat_open_input(&lavf_dmx_context, ipipe->name,
+                             NULL, NULL);
     if (ret != 0) {
         tc_log_error(__FILE__, "unable to open '%s'"
                                " (libavformat failure)",
@@ -109,7 +109,7 @@ void probe_ffmpeg(info_t *ipipe)
         return;
     }
 
-    ret = av_find_stream_info(lavf_dmx_context);
+    ret = avformat_find_stream_info(lavf_dmx_context, NULL);
     if (ret < 0) {
         tc_log_error(__FILE__, "unable to fetch informations from '%s'"
                                " (libavformat failure)",
@@ -120,7 +120,11 @@ void probe_ffmpeg(info_t *ipipe)
 
     translate_info(lavf_dmx_context, ipipe->probe_info);
 
+#if LIBAVFORMAT_VERSION_INT > AV_VERSION_INT(53,25,0)
+    avformat_close_input(&lavf_dmx_context);
+#else
     av_close_input_file(lavf_dmx_context);
+#endif
     return;
 }
 
